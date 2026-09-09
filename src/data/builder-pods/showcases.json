@@ -1,6 +1,123 @@
 {
   "showcases": [
     {
+      "slug": "showcase-3",
+      "name": "Arbitrum Builder Pods Showcase",
+      "subtitle": "3rd State-Level Showcase",
+      "tagline": "Six college builder pods. Pitching Arbitrum-ecosystem projects.",
+      "city": "Jaipur",
+      "region": "State-Level Showcase 3",
+      "status": "upcoming",
+      "date": "2026-09-09",
+      "day": "Wednesday",
+      "time": "6:00 PM – 8:00 PM IST",
+      "timeStart": "18:00",
+      "timeEnd": "20:00",
+      "timezone": "Asia/Kolkata",
+      "format": "Virtual",
+      "podsPresenting": 6,
+      "venue": null,
+      "poster": "/images/showcase-flyers/showcase3_image2.png",
+      "infoBanner": "",
+      "joinLink": "https://meet.google.com/qik-bbat-yjs",
+      "joinLinkLabel": "Join Showcase",
+      "presentedBy": "Lampros DAO",
+      "partners": ["Arbitrum", "Ethereum"],
+      "prizePool": {
+        "currency": "INR",
+        "total": 60000,
+        "breakdown": [
+          { "place": "1st Prize", "amount": 35000 },
+          { "place": "2nd Prize", "amount": 25000 }
+        ]
+      },
+      "colleges": [
+        {
+          "shortName": "NIIT",
+          "name": "NIIT University",
+          "city": "Neemrana",
+          "collegeSlug": null
+        },
+        {
+          "shortName": "LNMIIT",
+          "name": "The LNM Institute of Information Technology",
+          "city": "Jaipur",
+          "collegeSlug": null
+        },
+        {
+          "shortName": "DJSCE",
+          "name": "Dwarkadas J. Sanghvi College of Engineering",
+          "city": "Mumbai",
+          "collegeSlug": null
+        },
+        {
+          "shortName": "PDEU",
+          "name": "Pandit Deendayal Energy University",
+          "city": "Gandhinagar",
+          "collegeSlug": null
+        },
+        {
+          "shortName": "GMIT",
+          "name": "Gyanmanjari Institute of Technology",
+          "city": "Bhavnagar",
+          "collegeSlug": null
+        },
+        {
+          "shortName": "VGEC",
+          "name": "Vishwakarma Government Engineering College",
+          "city": "Ahmedabad",
+          "collegeSlug": null
+        }
+      ],
+      "agenda": [
+        {
+          "time": "6:00 PM",
+          "title": "Welcome & Opening Remarks",
+          "description": "Introduction to Arbitrum Builder Pods, event format, and judging criteria."
+        },
+        {
+          "time": "6:15 PM",
+          "title": "Pod Project Pitches",
+          "description": "Each of the six college builder pods pitches their Arbitrum-ecosystem project."
+        },
+        {
+          "time": "7:30 PM",
+          "title": "Judges Q&A",
+          "description": "Live questions from judges across technical execution, innovation, and ecosystem fit."
+        },
+        {
+          "time": "7:50 PM",
+          "title": "Closing & Next Steps",
+          "description": "Wrap-up, prize timeline, and how results will be announced."
+        }
+      ],
+      "outcomes": [
+        "Compete for a ₹60,000 total prize pool across 1st and 2nd place awards",
+        "Get evaluated on technical execution, innovation, ecosystem relevance, and presentation quality",
+        "Earn visibility across the Arbitrum and Ethereum ecosystem",
+        "Qualify for regional showcase finalist and winner recognition"
+      ],
+      "judgingCriteria": [
+        {
+          "title": "Technical Execution",
+          "description": "Quality of implementation, architecture, and onchain readiness."
+        },
+        {
+          "title": "Innovation",
+          "description": "Originality of the idea and problem-solving approach."
+        },
+        {
+          "title": "Ecosystem Relevance",
+          "description": "Fit with Arbitrum use cases and broader Ethereum ecosystem value."
+        },
+        {
+          "title": "Presentation Quality",
+          "description": "Clarity of pitch, demo quality, and storytelling."
+        }
+      ],
+      "description": "The third state-level Arbitrum Builder Pods Showcase brings six college pods together for a virtual pitch event on 9 September 2026."
+    },
+    {
       "slug": "mumbai",
       "name": "Arbitrum Builder Pods Showcase",
       "subtitle": "2nd State-Level Showcase",

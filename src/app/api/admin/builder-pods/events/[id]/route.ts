@@ -7,6 +7,7 @@ import {
     getAuthContext, requireAnyRole,
     UnauthorizedError, ForbiddenError
 } from '@/lib/rbac';
+import { slugifyShowcase } from '@/lib/builder-pods/showcase-details';
 
 // PATCH — update showcase event
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -38,9 +39,29 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         if (body.name) event.name = body.name;
         if (body.city) event.city = body.city;
         if (body.eventDate) event.eventDate = new Date(body.eventDate);
+        if (body.eventTime !== undefined) event.eventTime = body.eventTime || null;
         if (body.venue !== undefined) event.venue = body.venue;
         if (body.status) event.status = body.status;
-        if (body.prizePoolUsd !== undefined) event.prizePoolUsd = body.prizePoolUsd;
+        if (body.prizePoolUsd !== undefined) event.prizePoolUsd = Number(body.prizePoolUsd) || 0;
+        if (body.prizeCurrency) event.prizeCurrency = body.prizeCurrency === 'INR' ? 'INR' : 'USD';
+        if (body.subtitle !== undefined) event.subtitle = body.subtitle || null;
+        if (body.tagline !== undefined) event.tagline = body.tagline || null;
+        if (body.format !== undefined) event.format = body.format || 'Virtual';
+        if (body.poster !== undefined) event.poster = body.poster || null;
+        if (body.joinLink !== undefined) event.joinLink = body.joinLink || null;
+        if (body.slug || !event.slug) {
+            const base = body.slug || event.slug || body.city || event.city;
+            const root = slugifyShowcase(String(base));
+            if (root) {
+                let slug = root;
+                let n = 2;
+                while (await ShowcaseEvent.findOne({ slug, _id: { $ne: event._id } }).select('_id').lean()) {
+                    slug = `${root}-${n}`;
+                    n += 1;
+                }
+                event.slug = slug;
+            }
+        }
 
         await event.save();
 

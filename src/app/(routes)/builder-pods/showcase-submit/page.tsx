@@ -18,6 +18,7 @@ import {
 interface ShowcaseEvent {
     _id: string;
     name: string;
+    city?: string;
     regionSnapshot: { name: string; showcaseCity: string };
     status: string;
 }
@@ -180,7 +181,7 @@ export default function ShowcaseSubmitPage() {
                                 <option value="" className="bg-[#0a0d12]">Select showcase</option>
                                 {showcases.map((s) => (
                                     <option key={s._id} value={s._id} className="bg-[#0a0d12]">
-                                        {s.name} — {s.regionSnapshot.showcaseCity}
+                                        {s.name} — {s.city || s.regionSnapshot?.showcaseCity}
                                     </option>
                                 ))}
                             </select>

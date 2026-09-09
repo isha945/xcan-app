@@ -19,9 +19,10 @@ import {
     ShieldCheck,
 } from "lucide-react";
 import {
+    formatPrizeAmount,
     formatShowcaseDate,
-    getAllShowcaseDetails,
-    getShowcaseDetailsByCity,
+    getPrizeCurrency,
+    getPrizePoolTotal,
 } from "@/lib/builder-pods/showcase-details";
 
 const fetcher = (url: string) =>
@@ -99,7 +100,6 @@ export default function ShowcasePage() {
     );
     const apiShowcases = data?.showcases ?? [];
     const submissions = data?.userSubmissions ?? [];
-    const catalogShowcases = getAllShowcaseDetails();
 
     return (
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
@@ -118,22 +118,22 @@ export default function ShowcasePage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {submissions.map((sub: any) => {
-                            const showcase = apiShowcases.find((s: any) => s._id === sub.showcaseEventId);
-                            const details = getShowcaseDetailsByCity(
-                                showcase?.city || showcase?.regionSnapshot?.showcaseCity || ""
-                            );
+                            const showcase = apiShowcases.find((s: any) => String(s._id) === String(sub.showcaseEventId));
+                            const href = showcase?.slug
+                                ? `/builder-pods/showcase/${showcase.slug}`
+                                : null;
                             const card = (
                                 <motion.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     className="glass-container border-blue-500/10 rounded-2xl p-4 flex flex-col gap-3 h-full hover:border-white/15 transition-all"
                                 >
-                                    {details ? (
-                                        <Link href={`/builder-pods/showcase/${details.slug}`} className="flex flex-col gap-3">
+                                    {href ? (
+                                        <Link href={href} className="flex flex-col gap-3">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-[10px] font-bold text-blue-400 font-robotoMono uppercase tracking-wider">
-                                                        {details?.name || showcase?.name || "Showcase Request"}
+                                                        {showcase?.name || "Showcase Request"}
                                                     </span>
                                                     <h3 className="text-sm font-bold text-white font-robotoMono truncate max-w-[200px]">
                                                         {sub.projectSnapshot.name}
@@ -151,7 +151,7 @@ export default function ShowcasePage() {
                                             <div className="flex items-center gap-3 text-[10px] text-white/40 font-robotoMono">
                                                 <div className="flex items-center gap-1">
                                                     <MapPin className="w-3 h-3" />
-                                                    {details?.city || showcase?.city || showcase?.regionSnapshot?.showcaseCity || "Location TBD"}
+                                                    {showcase?.city || showcase?.regionSnapshot?.showcaseCity || "Location TBD"}
                                                 </div>
                                             </div>
                                         </Link>
@@ -215,16 +215,25 @@ export default function ShowcasePage() {
                 </h1>
             </div>
 
-            {catalogShowcases.length === 0 ? (
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="glass-container rounded-2xl p-6 animate-pulse">
+                            <div className="h-5 w-40 bg-white/5 rounded-lg mb-3" />
+                            <div className="h-4 w-24 bg-white/5 rounded-lg" />
+                        </div>
+                    ))}
+                </div>
+            ) : apiShowcases.length === 0 ? (
                 <div className="glass-container rounded-2xl p-12 text-center">
                     <Trophy className="w-8 h-8 text-white/40 mx-auto mb-3" />
                     <p className="text-sm text-white/80 font-robotoMono">No showcases yet</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {catalogShowcases.map((showcase, index) => (
+                    {apiShowcases.map((showcase: any, index: number) => (
                         <motion.div
-                            key={showcase.slug}
+                            key={showcase._id || showcase.slug}
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -235,9 +244,11 @@ export default function ShowcasePage() {
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
+                                    {showcase.subtitle && (
                                         <p className="text-[9px] font-bold uppercase tracking-wider text-yellow-400/80 font-robotoMono mb-1.5">
                                             {showcase.subtitle}
                                         </p>
+                                    )}
                                         <h3 className="text-sm font-bold text-white font-robotoMono mb-1.5 group-hover:text-blue-300 transition-colors">
                                             {showcase.name}
                                         </h3>
@@ -257,22 +268,28 @@ export default function ShowcasePage() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-white/45 font-robotoMono mb-4">
+                                    {showcase.date && (
                                     <div className="flex items-center gap-1">
                                         <Calendar className="w-3 h-3" />
                                         {formatShowcaseDate(showcase.date)}
                                     </div>
+                                    )}
+                                    {showcase.time && (
                                     <div className="flex items-center gap-1">
                                         <Clock className="w-3 h-3" />
                                         {showcase.time}
                                     </div>
+                                    )}
+                                    {showcase.format && (
                                     <div className="flex items-center gap-1">
                                         <MonitorPlay className="w-3 h-3" />
                                         {showcase.format}
                                     </div>
-                                    {showcase.prizePool.totalUsd > 0 && (
+                                    )}
+                                    {showcase.prizePool && getPrizePoolTotal(showcase.prizePool) > 0 && (
                                         <div className="flex items-center gap-1">
                                             <Trophy className="w-3 h-3 text-yellow-400/60" />
-                                            ${showcase.prizePool.totalUsd.toLocaleString()} prize
+                                            {formatPrizeAmount(getPrizePoolTotal(showcase.prizePool), getPrizeCurrency(showcase.prizePool))} prize
                                         </div>
                                     )}
                                 </div>

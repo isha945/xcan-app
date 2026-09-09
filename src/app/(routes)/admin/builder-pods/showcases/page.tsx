@@ -282,7 +282,7 @@ function EventCard({ event, onEdit, onDelete }: any) {
                 </div>
                 <div className="flex items-center gap-2">
                     <Trophy className="w-3 h-3 text-yellow-400/40" />
-                    ${event.prizePoolUsd?.toLocaleString()} Pool
+                    {event.prizeCurrency === 'INR' ? '₹' : '$'}{event.prizePoolUsd?.toLocaleString()} Pool
                 </div>
             </div>
             <div className="flex items-center gap-2 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -688,7 +688,7 @@ export default function AdminShowcasesPage() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="glass-container w-full max-w-md p-8 rounded-3xl"
+                            className="glass-container w-full max-w-lg p-8 rounded-3xl max-h-[90vh] overflow-y-auto"
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-lg font-black text-white font-unbounded">
@@ -719,25 +719,64 @@ export default function AdminShowcasesPage() {
                                     </div>
                                 </div>
 
+                                <div>
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase mb-1.5 ml-1">Subtitle</label>
+                                    <input name="subtitle" defaultValue={eventModal.event?.subtitle || ""} placeholder="e.g. 3rd State-Level Showcase" className="form-input-styled" />
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
                                         <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Event Date</label>
                                         <input name="eventDate" type="date" defaultValue={eventModal.event?.eventDate ? new Date(eventModal.event.eventDate).toISOString().split('T')[0] : ''} className="form-input-styled" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Prize Pool ($)</label>
+                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Time</label>
+                                        <input name="eventTime" defaultValue={eventModal.event?.eventTime || ""} placeholder="6:00 PM – 8:00 PM IST" className="form-input-styled" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Prize Pool</label>
                                         <input name="prizePoolUsd" type="number" defaultValue={eventModal.event?.prizePoolUsd || 0} className="form-input-styled" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Currency</label>
+                                        <select name="prizeCurrency" defaultValue={eventModal.event?.prizeCurrency || 'USD'} className="form-input-styled appearance-none">
+                                            <option value="USD">USD ($)</option>
+                                            <option value="INR">INR (₹)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Format</label>
+                                        <select name="format" defaultValue={eventModal.event?.format || 'Virtual'} className="form-input-styled appearance-none">
+                                            <option value="Virtual">Virtual</option>
+                                            <option value="In person">In person</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-[10px] font-bold text-white/40 uppercase ml-1">Status</label>
+                                        <select name="status" defaultValue={eventModal.event?.status || 'upcoming'} className="form-input-styled appearance-none">
+                                            <option value="upcoming">Upcoming</option>
+                                            <option value="open">Open (Submissions Active)</option>
+                                            <option value="judging">Judging Phase</option>
+                                            <option value="completed">Completed</option>
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-bold text-white/40 uppercase mb-1.5 ml-1">Status</label>
-                                    <select name="status" defaultValue={eventModal.event?.status || 'upcoming'} className="form-input-styled appearance-none">
-                                        <option value="upcoming">Upcoming</option>
-                                        <option value="open">Open (Submissions Active)</option>
-                                        <option value="judging">Judging Phase</option>
-                                        <option value="completed">Completed</option>
-                                    </select>
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase mb-1.5 ml-1">Join Link</label>
+                                    <input name="joinLink" defaultValue={eventModal.event?.joinLink || ""} placeholder="https://meet.google.com/..." className="form-input-styled" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-bold text-white/40 uppercase mb-1.5 ml-1">Poster URL</label>
+                                    <input name="poster" defaultValue={eventModal.event?.poster || ""} placeholder="/images/showcase-flyers/poster.png" className="form-input-styled" />
                                 </div>
 
                                 <button

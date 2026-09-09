@@ -13,6 +13,7 @@ import {
     verifyCollegeAccess,
     ForbiddenError,
 } from '@/lib/rbac';
+import { buildPublicShowcases } from '@/lib/builder-pods/showcase-details';
 
 // GET — list all showcase events
 export async function GET(req: NextRequest) {
@@ -20,9 +21,20 @@ export async function GET(req: NextRequest) {
         await dbConnect();
         const ctx = await getAuthContext(req).catch(() => null);
 
-        const showcases = await ShowcaseEvent.find()
-            .sort({ eventDate: -1 })
-            .lean();
+        const [events, regionColleges] = await Promise.all([
+            ShowcaseEvent.find().sort({ eventDate: -1 }).lean(),
+            College.find({ deletedAt: null })
+                .select('name slug city podName regionId')
+                .lean(),
+        ]);
+        const publicShowcases = buildPublicShowcases(events, regionColleges);
+        const showcases = events.map((event, index) => ({
+            ...event,
+            ...publicShowcases[index],
+            _id: event._id,
+            regionSnapshot: event.regionSnapshot,
+            status: event.status,
+        }));
 
         let userSubmissions: any[] = [];
         if (ctx?.walletAddress) {

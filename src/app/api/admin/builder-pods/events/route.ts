@@ -6,6 +6,22 @@ import {
     getAuthContext, requireAnyRole,
     UnauthorizedError, ForbiddenError
 } from '@/lib/rbac';
+import { slugifyShowcase } from '@/lib/builder-pods/showcase-details';
+
+async function uniqueEventSlug(base: string, excludeId?: string): Promise<string> {
+    const root = slugifyShowcase(base) || `showcase-${Date.now()}`;
+    let slug = root;
+    let n = 2;
+    while (true) {
+        const existing = await ShowcaseEvent.findOne({
+            slug,
+            ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+        }).select('_id').lean();
+        if (!existing) return slug;
+        slug = `${root}-${n}`;
+        n += 1;
+    }
+}
 
 // Manages ShowcaseEvent entities (the events themselves, not submissions)
 
@@ -38,7 +54,10 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
         const body = await req.json();
-        const { name, regionId, city, eventDate, venue, status, prizePoolUsd } = body;
+        const {
+            name, regionId, city, eventDate, venue, status, prizePoolUsd,
+            eventTime, format, joinLink, poster, subtitle, tagline, prizeCurrency,
+        } = body;
 
         if (!name || !regionId || !city) {
             return NextResponse.json({ success: false, error: 'Name, Region, and City are required' }, { status: 400 });
@@ -49,8 +68,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, error: 'Region not found' }, { status: 404 });
         }
 
+        const slug = await uniqueEventSlug(body.slug || city || name);
+
         const event = await ShowcaseEvent.create({
             name,
+            slug,
             regionId,
             regionSnapshot: {
                 name: region.name,
@@ -58,9 +80,16 @@ export async function POST(req: NextRequest) {
             },
             city,
             eventDate: eventDate ? new Date(eventDate) : null,
+            eventTime: eventTime || null,
             venue: venue || null,
             status: status || 'upcoming',
-            prizePoolUsd: prizePoolUsd || 0,
+            prizePoolUsd: Number(prizePoolUsd) || 0,
+            prizeCurrency: prizeCurrency === 'INR' ? 'INR' : 'USD',
+            subtitle: subtitle || null,
+            tagline: tagline || null,
+            format: format || 'Virtual',
+            poster: poster || null,
+            joinLink: joinLink || null,
             createdBy: ctx!.walletAddress,
         });
 

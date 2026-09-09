@@ -22,5 +22,5 @@ export const Region =
 export const REGION_SEED = [
     { name: 'Mumbai Zone', showcaseCity: 'Mumbai', stateCodes: ['MH'] },
     { name: 'Ahmedabad Zone', showcaseCity: 'Ahmedabad', stateCodes: ['GJ'] },
-    { name: 'Central Zone', showcaseCity: 'Indore', stateCodes: ['MP', 'RJ'] },
+    { name: 'Central Zone', showcaseCity: 'Jaipur', stateCodes: ['MP', 'RJ'] },
 ];

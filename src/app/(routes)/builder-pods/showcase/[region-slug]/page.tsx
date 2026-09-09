@@ -26,8 +26,12 @@ import {
   User,
 } from "lucide-react";
 import {
+  formatPrizeAmount,
   formatShowcaseDate,
-  getShowcaseDetailsBySlug,
+  getPrizeAmount,
+  getPrizeCurrency,
+  getPrizePoolTotal,
+  type PublicShowcase,
 } from "@/lib/builder-pods/showcase-details";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -36,6 +40,7 @@ const statusStyles: Record<string, string> = {
   upcoming: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   open: "bg-green-500/10 text-green-400 border-green-500/20",
   live: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+  judging: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   completed: "bg-white/5 text-white/60 border-white/10",
 };
 
@@ -50,7 +55,11 @@ const submissionStatusStyles: Record<string, string> = {
 export default function ShowcaseDetailPage() {
   const params = useParams();
   const regionSlug = params["region-slug"] as string;
-  const showcase = getShowcaseDetailsBySlug(regionSlug);
+
+  const { data, isLoading } = useSWR("/api/builder-pods/showcases", fetcher);
+  const showcase: PublicShowcase | undefined = data?.showcases?.find(
+    (s: PublicShowcase) => s.slug === regionSlug
+  );
 
   const { data: submissionsData, isLoading: submissionsLoading } = useSWR(
     showcase ? `/api/builder-pods/showcases/${showcase.slug}/submissions` : null,
@@ -67,6 +76,25 @@ export default function ShowcaseDetailPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [selected]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-10 py-6">
+        <Link
+          href="/builder-pods/showcase"
+          className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/80 hover:text-white font-robotoMono mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          All Showcases
+        </Link>
+        <div className="space-y-4">
+          <div className="h-8 w-64 bg-white/5 rounded-lg animate-pulse" />
+          <div className="h-4 w-48 bg-white/5 rounded-lg animate-pulse" />
+          <div className="h-72 bg-white/5 rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   if (!showcase) {
     return (
@@ -111,9 +139,11 @@ export default function ShowcaseDetailPage() {
         className="mb-8"
       >
         <div className="flex flex-wrap items-center gap-3 mb-3">
+          {showcase.subtitle && (
           <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider font-robotoMono bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
             {showcase.subtitle}
           </span>
+          )}
           <span
             className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider font-robotoMono border ${statusStyles[showcase.status] || statusStyles.upcoming}`}
           >
@@ -124,35 +154,48 @@ export default function ShowcaseDetailPage() {
         <h1 className="text-2xl md:text-3xl font-black text-white font-unbounded tracking-tight mb-2">
           {showcase.name}
         </h1>
+        {showcase.tagline && (
         <p className="text-xs md:text-sm text-white/55 font-robotoMono max-w-3xl leading-relaxed mb-4">
           {showcase.tagline}
         </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-white/60 font-robotoMono">
+          {showcase.city && (
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-blue-400/70" />
             {showcase.city}
           </span>
+          )}
+          {showcase.date && (
           <span className="inline-flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-blue-400/70" />
-            {formatShowcaseDate(showcase.date)} · {showcase.day}
+            {formatShowcaseDate(showcase.date)}{showcase.day ? ` · ${showcase.day}` : ""}
           </span>
+          )}
+          {showcase.time && (
           <span className="inline-flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-blue-400/70" />
             {showcase.time}
           </span>
+          )}
+          {showcase.format && (
           <span className="inline-flex items-center gap-1.5">
             <MonitorPlay className="w-3.5 h-3.5 text-blue-400/70" />
             {showcase.format}
           </span>
+          )}
+          {showcase.podsPresenting > 0 && (
           <span className="inline-flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-blue-400/70" />
             {showcase.podsPresenting} pods presenting
           </span>
+          )}
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6 mb-8 items-start">
+      <div className={`grid grid-cols-1 ${showcase.poster ? "xl:grid-cols-[1.15fr_0.85fr]" : ""} gap-6 mb-8 items-start`}>
+        {showcase.poster ? (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -169,6 +212,7 @@ export default function ShowcaseDetailPage() {
             sizes="(max-width: 1280px) 100vw, 55vw"
           />
         </motion.div>
+        ) : null}
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -186,8 +230,8 @@ export default function ShowcaseDetailPage() {
                 label="Date"
                 value={formatShowcaseDate(showcase.date)}
               />
-              <FactCard icon={Clock} label="Day" value={showcase.day} />
-              <FactCard icon={Clock} label="Time" value={showcase.time} />
+              <FactCard icon={Clock} label="Day" value={showcase.day || "TBD"} />
+              <FactCard icon={Clock} label="Time" value={showcase.time || "TBD"} />
               <FactCard
                 icon={MonitorPlay}
                 label="Format"
@@ -212,15 +256,16 @@ export default function ShowcaseDetailPage() {
             )}
           </div>
 
+          {showcase.prizePool && getPrizePoolTotal(showcase.prizePool) > 0 && (
           <div className="glass-container rounded-2xl p-5 md:p-6 border border-yellow-500/15">
             <div className="flex items-center gap-2 mb-4">
               <Trophy className="w-4 h-4 text-yellow-400/80" />
               <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-yellow-400/80 font-robotoMono">
-                Prize Pool · ${showcase.prizePool.totalUsd.toLocaleString()}
+                Prize Pool · {formatPrizeAmount(getPrizePoolTotal(showcase.prizePool), getPrizeCurrency(showcase.prizePool))}
               </h2>
             </div>
             <div className="space-y-2">
-              {showcase.prizePool.breakdown.map((prize) => (
+              {(showcase.prizePool.breakdown || []).map((prize) => (
                 <div
                   key={prize.place}
                   className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/5 px-3 py-2.5"
@@ -229,12 +274,13 @@ export default function ShowcaseDetailPage() {
                     {prize.place}
                   </span>
                   <span className="text-sm font-black text-yellow-400/90 font-unbounded">
-                    ${prize.amountUsd}
+                    {formatPrizeAmount(getPrizeAmount(prize), getPrizeCurrency(showcase.prizePool))}
                   </span>
                 </div>
               ))}
             </div>
           </div>
+          )}
 
           <div className="glass-container rounded-2xl p-5 md:p-6">
             <p className="text-[10px] text-white/45 font-robotoMono uppercase tracking-wider mb-2">
@@ -388,6 +434,7 @@ export default function ShowcaseDetailPage() {
       </motion.section>
 
       {/* Colleges */}
+      {showcase.colleges?.length > 0 && (
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -438,8 +485,10 @@ export default function ShowcaseDetailPage() {
           })}
         </div>
       </motion.section>
+      )}
 
       {/* Outcomes */}
+      {showcase.outcomes?.length > 0 && (
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -463,6 +512,7 @@ export default function ShowcaseDetailPage() {
           ))}
         </div>
       </motion.section>
+      )}
 
       {showcase.description && (
         <motion.p
