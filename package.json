@@ -14,9 +14,12 @@
     "send-regional-showcase-meeting": "npx tsx scripts/send-regional-showcase-meeting.ts"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": "20.x || 22.x",
     "yarn": ">=1.22.0",
     "npm": "please-use-yarn"
+  },
+  "resolutions": {
+    "jwa": "^1.4.2"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.20.1",
@@ -58,7 +61,7 @@
     "graphql": "^16.8.1",
     "handlebars": "^4.7.8",
     "ioredis": "^5.4.2",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "limiter": "^2.1.0",
     "lucide-react": "^0.383.0",
     "luxon": "^3.4.4",
