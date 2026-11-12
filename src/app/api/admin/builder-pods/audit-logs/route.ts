@@ -3,6 +3,8 @@ import { dbConnect } from '@/lib/dbConnect';
 import { AuditLog } from '@/models/AuditLog';
 import { getAuthContext, requireRole, UnauthorizedError, ForbiddenError } from '@/lib/rbac';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/builder-pods/audit-logs — paginated audit trail
 export async function GET(req: NextRequest) {
     try {
